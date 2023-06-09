@@ -19,7 +19,7 @@ TEST(TestOpencvMatrixOperate, TestFloatMatrixMultiple)
 	std::cout << c << std::endl;
 
 	// ASSERT
-	size_t len = c.rows * c.cols;
+	size_t len = static_cast<size_t>(c.rows) * static_cast<size_t>(c.cols);
 	float* c_ptr = (float*)((void*)c.data);
 	float* expected_ptr = (float*)((void*)expected.data);
 	for (int i = 0; i < len; i++)
@@ -84,7 +84,7 @@ TEST(TestOpencvMatrixOperate, TestFloatMatrixMultipleWithDecimalPoint)
 	std::cout << c << std::endl;
 
 	// ASSERT
-	size_t len = c.rows * c.cols;
+	size_t len = static_cast<size_t>(c.rows) * static_cast<size_t>(c.cols);
 	float* c_ptr = (float*)((void*)c.data);
 	float* expected_ptr = (float*)((void*)expected.data);
 	for (int i = 0; i < len; i++)
@@ -92,4 +92,32 @@ TEST(TestOpencvMatrixOperate, TestFloatMatrixMultipleWithDecimalPoint)
 	delete[] arr1;
 	delete[] arr2;
 	delete[] arr3;
+}
+
+TEST(TestOpencvMatrixOperate, TestMatrixTranspose)
+{
+	// ARRANGE
+	float* arr1 = new float[6] {1, 2, 3, 4, 5, 6};
+	cv::Mat expected = cv::Mat(3, 2, CV_32FC1, arr1);
+
+	// ACT
+	cv::Mat a = cv::Mat(2, 3, CV_32FC1, arr1);
+	std::cout << a << std::endl;
+	cv::Mat result = a.t();
+	std::cout << result << std::endl;
+
+	// ASSERT
+	EXPECT_EQ(result.rows, expected.rows);
+	EXPECT_EQ(result.cols, expected.cols);
+	size_t len = static_cast<size_t>(result.rows) * static_cast<size_t>(result.cols);
+	float* result_ptr = (float*)((void*)result.data);
+	float* expected_ptr = (float*)((void*)expected.data);
+	for (int i = 0; i < len; i++) {
+		EXPECT_FLOAT_EQ(*(result_ptr), *(expected_ptr));
+	}
+	delete[] arr1;
+}
+
+TEST(TestOpencvMatrixOperate, TestMatrixInverse)
+{
 }
