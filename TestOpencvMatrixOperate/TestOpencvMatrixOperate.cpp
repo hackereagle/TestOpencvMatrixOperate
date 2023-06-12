@@ -182,6 +182,7 @@ TEST(TestOpencvMatrixOperate, TestSquareMatrixInverse)
 	cv::Mat result;
 	double ret = cv::invert(a, result);
 	std::cout << "cv::invert return value = " << ret << std::endl;
+	EXPECT_NE(ret, 0.0);
 	std::cout << "result = \n" << result << std::endl;
 
 	// ASSERT
@@ -209,10 +210,10 @@ TEST(TestOpencvMatrixOperate, TestDetZeroMatrixInverseFail)
 	double det = cv::determinant(a);
 	std::cout << "determint of a = " << det << std::endl;
 	EXPECT_EQ(det, 0.0);
-	//cv::Mat result = a.inv();
 	cv::Mat result;
 	double ret = cv::invert(a, result);
 	std::cout << "cv::invert return value = " << ret << std::endl;
+	EXPECT_EQ(ret, 0.0);
 	std::cout << "result = \n" << result << std::endl;
 
 	// ASSERT
