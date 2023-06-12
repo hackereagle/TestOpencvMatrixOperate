@@ -118,6 +118,110 @@ TEST(TestOpencvMatrixOperate, TestMatrixTranspose)
 	delete[] arr1;
 }
 
-TEST(TestOpencvMatrixOperate, TestMatrixInverse)
+TEST(TestOpencvMatrixOperate, TestSquareMatrixInverse)
 {
+#if 0
+	// I don't know why using float is going to error
+	// 
+	// a = 
+	// [1, 2, 3;
+	// 5, 5, 6;
+	// 7, 8, 9]
+	// determint of a = 6
+	// 	result =
+	// 	[1, 2, 3;
+	// 5, 5, 6;
+	// 7, 8, 9]
+	// a* result =
+	// 	[1, 0, 0;
+	// 0, 1, 0;
+	// 4.7683716e-07, 0, 1]
+	// Expected equality of these values :
+	// *(unitMatPtr + i)
+	// 	Which is : 4.7683716e-07
+	// 	* (expPtr + i)
+	// 	Which is : 0
+	// ARRANGE
+	float* data1 = new float[9] {1, 2, 3, 5, 5, 6, 7, 8, 9};
+	float* expectedData1 = new float[9] {1, 0, 0, 0, 1, 0, 0, 0, 1};
+	cv::Mat expected = cv::Mat(3, 3, CV_32FC1,  expectedData1);
+
+	// ACT
+	cv::Mat a = cv::Mat(3, 3, CV_32FC1, data1);
+	std::cout << "a = \n" << a << std::endl;
+	double det = cv::determinant(a);
+	std::cout << "determint of a = " << det << std::endl;
+	EXPECT_NE(det, 0.0);
+	cv::Mat result = a.inv(cv::DecompTypes::DECOMP_LU);
+	std::cout << "result = \n" << result << std::endl;
+
+	// ASSERT
+	cv::Mat unitMat = result * a;
+	std::cout << "a * result = \n" << unitMat << std::endl;
+	size_t len = static_cast<size_t>(unitMat.rows) * static_cast<size_t>(unitMat.cols);
+	float* unitMatPtr = (float*)((void*)unitMat.data);
+	float* expPtr = (float*)((void*)expected.data);
+	for (int i = 0; i < len; i++) {
+		EXPECT_FLOAT_EQ(*(unitMatPtr + i), *(expPtr + i));
+	}
+	delete[] data1;
+	delete[] expectedData1;
+#else
+	// ARRANGE
+	double* data1 = new double[9] {1, 2, 3, 5, 5, 6, 7, 8, 9};
+	double* expectedData1 = new double[9] {1, 0, 0, 0, 1, 0, 0, 0, 1};
+	cv::Mat expected = cv::Mat(3, 3, CV_64FC1,  expectedData1);
+
+	// ACT
+	cv::Mat a = cv::Mat(3, 3, CV_64FC1, data1);
+	std::cout << "a = \n" << a << std::endl;
+	double det = cv::determinant(a);
+	std::cout << "determint of a = " << det << std::endl;
+	EXPECT_NE(det, 0.0);
+	//cv::Mat result = a.inv();
+	cv::Mat result;
+	double ret = cv::invert(a, result);
+	std::cout << "cv::invert return value = " << ret << std::endl;
+	std::cout << "result = \n" << result << std::endl;
+
+	// ASSERT
+	cv::Mat unitMat = result * a;
+	std::cout << "a * result = \n" << unitMat << std::endl;
+	size_t len = static_cast<size_t>(unitMat.rows) * static_cast<size_t>(unitMat.cols);
+	double* unitMatPtr = (double*)((void*)unitMat.data);
+	double* expPtr = (double*)((void*)expected.data);
+	for (int i = 0; i < len; i++) {
+		EXPECT_DOUBLE_EQ(*(unitMatPtr + i), *(expPtr + i));
+	}
+	delete[] data1;
+	delete[] expectedData1;
+#endif
+}
+
+TEST(TestOpencvMatrixOperate, TestDetZeroMatrixInverseFail)
+{
+	// ARRANGE
+	double* data1 = new double[9] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+	// ACT
+	cv::Mat a = cv::Mat(3, 3, CV_64FC1, data1);
+	std::cout << "a = \n" << a << std::endl;
+	double det = cv::determinant(a);
+	std::cout << "determint of a = " << det << std::endl;
+	EXPECT_EQ(det, 0.0);
+	//cv::Mat result = a.inv();
+	cv::Mat result;
+	double ret = cv::invert(a, result);
+	std::cout << "cv::invert return value = " << ret << std::endl;
+	std::cout << "result = \n" << result << std::endl;
+
+	// ASSERT
+	cv::Mat unitMat = result * a;
+	std::cout << "a * result = \n" << unitMat << std::endl;
+	size_t len = static_cast<size_t>(unitMat.rows) * static_cast<size_t>(unitMat.cols);
+	double* unitMatPtr = (double*)((void*)unitMat.data);
+	for (int i = 0; i < len; i++) {
+		EXPECT_DOUBLE_EQ(*(unitMatPtr + i), 0.0);
+	}
+	delete[] data1;
 }
