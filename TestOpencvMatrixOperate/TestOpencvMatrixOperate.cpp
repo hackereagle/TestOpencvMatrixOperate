@@ -227,7 +227,7 @@ TEST(TestOpencvMatrixOperate, TestDetZeroMatrixInverseFail)
 	delete[] data1;
 }
 
-TEST(TestOpencvMatrixOperate, TestGeneralizedInverseForNotFullRankSquareMatrix)
+TEST(TestOpencvMatrixOperate, TestGeneralizedInverseForNotFullRankSquareMatrixConditionValidation)
 {
 	// ARRANGE
 	double* data1 = new double[9] {1, 2, 3, 4, 5, 6, 7, 8, 9};
