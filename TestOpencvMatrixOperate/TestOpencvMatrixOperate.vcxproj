@@ -33,6 +33,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="MatrixOperateExtensions.hpp" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>

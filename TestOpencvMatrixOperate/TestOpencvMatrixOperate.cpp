@@ -226,3 +226,46 @@ TEST(TestOpencvMatrixOperate, TestDetZeroMatrixInverseFail)
 	}
 	delete[] data1;
 }
+
+TEST(TestOpencvMatrixOperate, TestGeneralizedInverseForNotFullRankSquareMatrix)
+{
+	// ARRANGE
+	double* data1 = new double[9] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+	// ACT
+	cv::Mat a = cv::Mat(3, 3, CV_64FC1, data1);
+	std::cout << "a = \n" << a << std::endl;
+	double det = cv::determinant(a);
+	std::cout << "determint of a = " << det << std::endl;
+	EXPECT_EQ(det, 0.0);
+	int rank = Rank(a);
+	std::cout << "rank = " << rank << ". Not full rank!" << std::endl;
+	EXPECT_NE(rank, a.rows);
+	// begin calculate generalized inverse
+	cv::Mat a11 = a(cv::Rect(0, 0, rank, rank));
+	std::cout << "top left sub matrix = \n" << a11 << std::endl;
+	double subMatDet = cv::determinant(a11);
+	std::cout << "top left sub matrix det = " << subMatDet << std::endl;
+	cv::Mat a11Inv;
+	double ret2 = cv::invert(a11, a11Inv);
+	std::cout << "top left sub matrix invert = \n" << a11Inv << ", return value = " << ret2 << std::endl;
+	cv::Mat inversA = cv::Mat::zeros(a.size(), CV_64FC1);
+	// TODO: Need a more elegant and concise to do set a11Inv to inversA
+	for (int i = 0; i < a11Inv.rows; i++)
+		for (int j = 0; j < a11Inv.cols; j++)
+			inversA.at<double>(i, j) = a11Inv.at<double>(i, j);
+	std::cout << "after modified, inverse A = \n" << inversA << std::endl;
+
+
+	// ASSERT
+	cv::Mat unitMat = inversA * a;
+	std::cout << "a * result = \n" << unitMat << std::endl;
+	cv::Mat backToOrgA = a * inversA * a;
+	std::cout << "a * result * a = \n" << backToOrgA << std::endl;
+	size_t len = static_cast<size_t>(backToOrgA.rows) * static_cast<size_t>(backToOrgA.cols);
+	double* backToOrgAPtr = (double*)((void*)backToOrgA.data);
+	for (int i = 0; i < len; i++) {
+		EXPECT_DOUBLE_EQ(*(backToOrgAPtr + i), *(data1 + i));
+	}
+	delete[] data1;
+}
