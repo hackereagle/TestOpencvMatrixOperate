@@ -1,7 +1,19 @@
 #pragma once
 
 #include <iostream>
+#include <cmath>
 #include "opencv2/opencv.hpp"
+
+#ifdef M_PI
+#define PI M_PI
+#elif PI
+// do nothing
+#else
+#define PI (3.14159265358979323846)
+#endif
+
+#define DEG2RAD(x) ((x) * PI / 180.0)
+#define RAD2DEG(x) ((x) * 180.0 / PI)
 
 inline int Rank(cv::Mat mat)
 {
@@ -34,25 +46,3 @@ inline int Rank(cv::Mat mat)
 	return rank;
 }
 
-inline cv::Mat PseudoInverseMat(cv::Mat mat)
-{
-	cv::Mat res;
-
-	int m = mat.rows, n = mat.cols;
-
-	//if (m == n) {
-	//	std::cout << "in PseudoInverseMat, square matrix" << std::endl;
-	//	res = mat.t() * mat;
-	//	//res = mat * mat.t();
-	//	std::cout << "in PseudoInverseMat, res = (mat^T * mat)\n" << res << std::endl;
-	//	res = res.inv();
-	//	std::cout << "in PseudoInverseMat, res = res^-1\n" << res << std::endl;
-	//}
-	//else {
-	//	throw "Not implement";
-	//}
-	double ret = cv::invert(mat, res, cv::DecompTypes::DECOMP_SVD);
-	std::cout << "in PseudoInverseMat, ret = " << ret << ", \nres = \n" << res << std::endl;
-
-	return res;
-}
