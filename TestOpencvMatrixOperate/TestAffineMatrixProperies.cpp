@@ -83,8 +83,8 @@ public:
 		
 		cv::Mat res = *this->_affines[(int)order1] * *this->_affines[(int)order2] * *this->_affines[(int)order3] * *this->_affines[(int)order4];
 
-		std::cout << AffineStr[(int)order1] << " * " << AffineStr[(int)order2] << " * " << AffineStr[(int)order3] << " * " << AffineStr[(int)order4] << " = \n" <<
-					 res << std::endl;
+		std::cout << AffineStr[(int)order1] << " * " << AffineStr[(int)order2] << " * " << AffineStr[(int)order3] << " * " << AffineStr[(int)order4] << " = \n" 
+				  << res << std::endl;
 
 		return res;
 	}
@@ -102,43 +102,33 @@ private:
 
 	void InitializeAllAffineMatrixes()
 	{
-		std::cout << "begin initialize" << std::endl;
+		//std::cout << "begin initialize" << std::endl; // debug
 		_translation = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0.0));
 		_translation.at<double>(0, 0) = 1.0;
 		_translation.at<double>(1, 1) = 1.0;
-		//_translation.at<double>(0, 2) = _tx;
-		//_translation.at<double>(1, 2) = _ty;
 		_translation.at<double>(2, 2) = 1.0;
-		std::cout << "translation matrix = \n" << _translation << std::endl; // debug
+		//std::cout << "translation matrix = \n" << _translation << std::endl; // debug
 
 		_rotation = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0.0));
 		double theta = DEG2RAD(_theta);
-		//_rotation.at<double>(0, 0) = cos(theta);
-		//_rotation.at<double>(0, 1) = sin(theta);
-		//_rotation.at<double>(1, 0) = -sin(theta);
-		//_rotation.at<double>(1, 1) = cos(theta);
 		_rotation.at<double>(0, 0) = 1.0;
 		_rotation.at<double>(1, 1) = 1.0;
 		_rotation.at<double>(2, 2) = 1.0;
-		std::cout << "rotation matrix = \n" << _rotation << std::endl; // debug
+		//std::cout << "rotation matrix = \n" << _rotation << std::endl; // debug
 
 		_scale = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0.0));
-		//_scale.at<double>(0, 0) = _scaleX;
-		//_scale.at<double>(1, 1) = _scaleY;
 		_scale.at<double>(0, 0) = 1.0;
 		_scale.at<double>(1, 1) = 1.0;
 		_scale.at<double>(2, 2) = 1.0;
-		std::cout << "scale matrix = \n" << _scale << std::endl; // debug
+		//std::cout << "scale matrix = \n" << _scale << std::endl; // debug
 
 		_shear = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0.0));
 		double Phi = DEG2RAD(_shearX), Psi = DEG2RAD(_shearY); // Phi is angle with x and Psi is angle with y.
 		_shear.at<double>(0, 0) = 1.0;
 		_shear.at<double>(1, 1) = 1.0;
-		//_shear.at<double>(0, 1) = tan(Phi);
-		//_shear.at<double>(1, 0) = tan(Psi);
 		_shear.at<double>(2, 2) = 1.0;
-		std::cout << "shear matrix = \n" << _shear << std::endl; // debug
-		std::cout << "end initialize" << std::endl;
+		//std::cout << "shear matrix = \n" << _shear << std::endl; // debug
+		//std::cout << "end initialize" << std::endl;
 	}
 
 	void AssignOrder()
@@ -169,7 +159,7 @@ private:
 	}
 };
 
-TEST(TestAffineMatrixProperties, TestAffineMatrixCommutativeLaw)
+TEST(TestAffineMatrixProperties, TestAffineMatrixNotCommutativeLawCase)
 {
 	// ARRANGE
 	cv::Mat translation = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0.0));
@@ -177,52 +167,7 @@ TEST(TestAffineMatrixProperties, TestAffineMatrixCommutativeLaw)
 	cv::Mat scale = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0.0));
 	cv::Mat shear = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0.0));
 
-	//// traslation
-	//double Tx = 10.0, Ty = 20.0;
-	//translation.at<double>(0, 0) = 1.0;
-	//translation.at<double>(1, 1) = 1.0;
-	//translation.at<double>(0, 2) = Tx;
-	//translation.at<double>(1, 2) = Ty;
-	//translation.at<double>(2, 2) = 1.0;
-	//std::cout << "translation matrix = \n" << translation << std::endl;
-	//// rotation
-	//double theta = DEG2RAD(60.0);
-	//rotation.at<double>(0, 0) = cos(theta);
-	//rotation.at<double>(0, 1) = sin(theta);
-	//rotation.at<double>(1, 0) = -sin(theta);
-	//rotation.at<double>(1, 1) = cos(theta);
-	//rotation.at<double>(2, 2) = 1.0;
-	//std::cout << "rotation matrix = \n" << rotation << std::endl;
-	//// scale
-	////double Sx = 2.0, Sy = 3.0;
-	//double Sx = 1.0, Sy = 1.0;
-	//scale.at<double>(0, 0) = Sx;
-	//scale.at<double>(1, 1) = Sy;
-	//scale.at<double>(2, 2) = 1.0;
-	//std::cout << "scale matrix = \n" << scale << std::endl;
-	//// shear
-	////double Phi = DEG2RAD(30.0), Psi = DEG2RAD(60.0); // Phi is angle with x and Psi is angle with y.
-	//double Phi = DEG2RAD(00.0), Psi = DEG2RAD(00.0); // Phi is angle with x and Psi is angle with y.
-	//shear.at<double>(0, 0) = 1.0;
-	//shear.at<double>(1, 1) = 1.0;
-	//shear.at<double>(0, 1) = tan(Phi);
-	//shear.at<double>(1, 0) = tan(Psi);
-	//shear.at<double>(2, 2) = 1.0;
-	//std::cout << "shear matrix = \n" << shear << std::endl;
-
-	//// ACT
-	//cv::Mat order1 = translation * rotation * shear * scale;
-	//std::cout << "order1 = translation * rotation * shear * scale\n" << order1 << std::endl;
-
-	////cv::Mat order2 = translation * scale * rotation * shear;
-	////std::cout << "order2 = translation * scale * rotation * shear\n" << order2 << std::endl;
-
-	////cv::Mat order2 = scale * translation * rotation * shear;
-	////std::cout << "order2 = scale * translation * rotation * shear\n" << order2 << std::endl;
-
-	//cv::Mat order2 = rotation * scale * translation * shear;
-	//std::cout << "order2 = rotation * scale * translation * shear\n" << order2 << std::endl;
-
+	// ACT
 	// theta, ShearX and ShearY are degree.
 	double Tx = 10.0, Ty = 20.0, theta = 60.0, Sx = 1.0, Sy = 1.0, ShearX = 0.0, ShearY = 0.0;
 	AffineMatrixMultipleOrder multipler = AffineMatrixMultipleOrder(Tx, Ty, theta, Sx, Sy, ShearX, ShearY);
@@ -230,7 +175,40 @@ TEST(TestAffineMatrixProperties, TestAffineMatrixCommutativeLaw)
 	cv::Mat order2 = multipler.CalculateAffineMatrix(AffineMatrix::Rotation, AffineMatrix::Scale, AffineMatrix::Translation, AffineMatrix::Shear);
 
 	// ASSERT
-	for (int i = 0; i < 6; i++) {
-		EXPECT_DOUBLE_EQ(*((double*)(void*)order1.data + i), *((double*)(void*)order2.data + i));
+	int count = 0;
+	for (int i = 0; i < 9; i++) {
+		::testing::internal::FloatingPoint<double> l(*((double*)(void*)order1.data + i)), r(*((double*)(void*)order2.data + i));
+		if (l.AlmostEquals(r)) {
+			count = count + 1;
+		}
 	}
+
+	ASSERT_FALSE(count == 9);
+}
+
+TEST(TestAffineMatrixProperties, TranslationFirst_NoScaleAndShear_SwitchRotationAndScale)
+{
+	// ARRANGE
+	cv::Mat translation = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0.0));
+	cv::Mat rotation = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0.0));
+	cv::Mat scale = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0.0));
+	cv::Mat shear = cv::Mat(3, 3, CV_64FC1, cv::Scalar(0.0));
+
+	// ACT
+	// theta, ShearX and ShearY are degree.
+	double Tx = 10.0, Ty = 20.0, theta = 60.0, Sx = 1.0, Sy = 1.0, ShearX = 0.0, ShearY = 0.0;
+	AffineMatrixMultipleOrder multipler = AffineMatrixMultipleOrder(Tx, Ty, theta, Sx, Sy, ShearX, ShearY);
+	cv::Mat order1 = multipler.CalculateAffineMatrix(AffineMatrix::Translation, AffineMatrix::Rotation, AffineMatrix::Scale, AffineMatrix::Shear);
+	cv::Mat order2 = multipler.CalculateAffineMatrix(AffineMatrix::Translation, AffineMatrix::Scale, AffineMatrix::Rotation, AffineMatrix::Shear);
+
+	// ASSERT
+	int count = 0;
+	for (int i = 0; i < 9; i++) {
+		::testing::internal::FloatingPoint<double> l(*((double*)(void*)order1.data + i)), r(*((double*)(void*)order2.data + i));
+		if (l.AlmostEquals(r)) {
+			count = count + 1;
+		}
+	}
+
+	ASSERT_TRUE(count == 9);
 }
