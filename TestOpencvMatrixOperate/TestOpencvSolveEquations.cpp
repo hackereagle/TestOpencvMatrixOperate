@@ -101,7 +101,7 @@ TEST(TestOpencvSolveEquations, TestNonSquareRightInverse)
 		EXPECT_NEAR(*((double*)(void*)a.data + i), *((double*)(void*)cond1.data + i), 0.00000001);
 }
 
-TEST(TestOpencvSolveEquations, TestDeriveFourPointAffineMatrix)
+TEST(TestOpencvSolveEquations, TestDeriveFourPointInverseAffineMatrix)
 {
 	// ARRANGE
 	double Tx = 10.0, Ty = 20.0, theta = 60.0, Sx = 1.0, Sy = 1.0, ShearX = 2.0, ShearY = 3.0;
@@ -140,7 +140,7 @@ TEST(TestOpencvSolveEquations, TestDeriveFourPointAffineMatrix)
 	}
 }
 
-TEST(TestOpencvSolveEquations, TestDeriveEightPointAffineMatrix)
+TEST(TestOpencvSolveEquations, TestDeriveEightPointInverseAffineMatrix)
 {
 	// ARRANGE
 	double Tx = 10.0, Ty = 20.0, theta = 60.0, Sx = 1.0, Sy = 1.0, ShearX = 2.0, ShearY = 3.0;
@@ -183,4 +183,99 @@ TEST(TestOpencvSolveEquations, TestDeriveEightPointAffineMatrix)
 	}
 }
 
-//TEST(TestOpencvSolveEquations, TestDeriveEightPointAffineMatrixWithOpencvGetAffine)
+TEST(TestOpencvSolveEquations, TestDeriveEightPointInverseAffineMatrixWithOpencvGetAffine)
+{
+	// ARRANGE
+	double Tx = 10.0, Ty = 20.0, theta = 60.0, Sx = 1.0, Sy = 1.0, ShearX = 2.0, ShearY = 3.0;
+	AffineMatrixMultipleOrder multipler = AffineMatrixMultipleOrder(Tx, Ty, theta, Sx, Sy, ShearX, ShearY);
+	// This is goal matrix.
+	cv::Mat affine = multipler.CalculateAffineMatrix(AffineMatrix::Translation, AffineMatrix::Rotation, AffineMatrix::Shear, AffineMatrix::Scale);
+	double stagesData[8][3] =
+	{ {20.0, 37.0, 1.0}, 
+	  {130.0, 189.0, 1.0}, 
+	  {5.0, 66.0, 1.0}, 
+	  {15.0, 66.0, 1.0}, 
+	  {58.0, 61.99, 1.0}, 
+	  {542.98, 6.13, 1.0}, 
+	  {5.0, 667.31, 1.0}, 
+	  {132.0, 168.0, 1.0} };
+	cv::Mat stages;
+	for (int i = 0; i < 8; i++) {
+		stages.push_back(cv::Mat(1, 3, CV_64FC1, stagesData[i]));
+	}
+	stages = stages.t();
+	cv::Mat wafers;
+	wafers = affine * stages;
+	std::cout << "stage points = \n" << stages << "\nwafer points = \n" << wafers << std::endl;
+
+	cv::Mat invertAffineGoal;
+	double ret = cv::invert(affine, invertAffineGoal);
+	std::cout << "this is our goal matrix = \n" << invertAffineGoal << std::endl << std::endl;
+
+	// ACT
+	cv::Point2f w[8];
+	for (int i = 0; i < 8; i++) {
+		w[i].x = static_cast<float>(*((double*)(void*)wafers.data + i));
+		w[i].y = static_cast<float>(*((double*)(void*)wafers.data + i + wafers.cols));
+	}
+	cv::Point2f s[8];
+	for (int i = 0; i < 8; i++) {
+		s[i].x = static_cast<float>(*((double*)(void*)stages.data + i));
+		s[i].y = static_cast<float>(*((double*)(void*)stages.data + i + stages.cols));
+	}
+	cv::Mat invertAffine = cv::getAffineTransform(w, s);
+	std::cout << "invert affine matrix = \n" << invertAffine << std::endl;
+
+	// ASSERT
+	//std::cout << "==================" << std::endl;
+	for (int i = 0; i < 6; i++) {
+		//std::cout << *((double*)(void*)invertAffine.data + i) << ", " << *((double*)(void*)invertAffineGoal.data + i) << std::endl;
+		EXPECT_NEAR(*((double*)(void*)invertAffine.data + i), *((double*)(void*)invertAffineGoal.data + i), 0.00001);
+	}
+}
+
+TEST(TestOpencvSolveEquations, TestDeriveEightPointAffineMatrixWithOpencvGetAffine)
+{
+	// ARRANGE
+	double Tx = 10.0, Ty = 20.0, theta = 60.0, Sx = 1.0, Sy = 1.0, ShearX = 2.0, ShearY = 3.0;
+	AffineMatrixMultipleOrder multipler = AffineMatrixMultipleOrder(Tx, Ty, theta, Sx, Sy, ShearX, ShearY);
+	// This is goal matrix.
+	cv::Mat affine = multipler.CalculateAffineMatrix(AffineMatrix::Translation, AffineMatrix::Rotation, AffineMatrix::Shear, AffineMatrix::Scale);
+	double stagesData[8][3] =
+	{ {20.0, 37.0, 1.0}, 
+	  {130.0, 189.0, 1.0}, 
+	  {5.0, 66.0, 1.0}, 
+	  {15.0, 66.0, 1.0}, 
+	  {58.0, 61.99, 1.0}, 
+	  {542.98, 6.13, 1.0}, 
+	  {5.0, 667.31, 1.0}, 
+	  {132.0, 168.0, 1.0} };
+	cv::Mat stages;
+	for (int i = 0; i < 8; i++) {
+		stages.push_back(cv::Mat(1, 3, CV_64FC1, stagesData[i]));
+	}
+	stages = stages.t();
+	cv::Mat wafers;
+	wafers = affine * stages;
+	std::cout << "stage points = \n" << stages << "\nwafer points = \n" << wafers << std::endl;
+
+	// ACT
+	cv::Point2f w[8];
+	for (int i = 0; i < 8; i++) {
+		w[i].x = static_cast<float>(*((double*)(void*)wafers.data + i));
+		w[i].y = static_cast<float>(*((double*)(void*)wafers.data + i + wafers.cols));
+	}
+	cv::Point2f s[8];
+	for (int i = 0; i < 8; i++) {
+		s[i].x = static_cast<float>(*((double*)(void*)stages.data + i));
+		s[i].y = static_cast<float>(*((double*)(void*)stages.data + i + stages.cols));
+	}
+	cv::Mat Affine = cv::getAffineTransform(s, w);
+	std::cout << "affine matrix = \n" << Affine << std::endl;
+
+	// ASSERT
+	for (int i = 0; i < 6; i++) {
+		EXPECT_NEAR(*((double*)(void*)Affine.data + i), *((double*)(void*)affine.data + i), 0.00001);
+	}
+
+}
