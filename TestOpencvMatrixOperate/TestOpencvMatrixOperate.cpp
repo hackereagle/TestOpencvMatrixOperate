@@ -269,3 +269,43 @@ TEST(TestOpencvMatrixOperate, TestGeneralizedInverseForNotFullRankSquareMatrixCo
 	}
 	delete[] data1;
 }
+
+
+TEST(TestOpencvMatrixOperate, TestAllElementMultipleBetweenTwoMat)
+{
+	// ARRANGE
+	float arr1[6] = { 1, 2, 3, 4, 5, 6 };
+	float arr2[6] = { 2, 8, 7, 9, 2, 6 };
+	float arr3[6] = { 2, 16, 21, 36, 10, 36};
+	cv::Mat expected = cv::Mat(2, 3, CV_32FC1, arr3);
+
+	// ACT
+	cv::Mat mat1(2, 3, CV_32FC1, arr1);
+	cv::Mat mat2(2, 3, CV_32FC1, arr2);
+	cv::Mat result = mat1.mul(mat2);
+
+	// ASSERT
+	for (int i = 0; i < 6; i++)
+		EXPECT_FLOAT_EQ(*((float*)result.data + i), *((float*)expected.data + i));
+}
+
+TEST(TestOpencvMatrixOperate, TestGetElementsWithConditionFromMat)
+{
+	// ARRANGE
+	float arr1[9]{10, 20, 30, 6, 90, 5, 0, 3, 50};
+	float arr2[9]{10, 20, 30, 0, 90, 0, 0, 0, 50};
+	cv::Mat expected(3, 3, CV_32FC1, arr2);
+	std::cout << "expected = \n" << expected << std::endl;
+
+	// ACT
+	cv::Mat mat(3, 3, CV_32FC1, arr1);
+	std::cout << "mat = \n" << mat << std::endl;
+	cv::Mat mask = mat >= 10;
+	cv::Mat result;
+	mat.copyTo(result, mask);
+	std::cout << "result = \n" << result << std::endl;
+
+	// ASSERT
+	for (int i = 0; i < 9; i++)
+		EXPECT_FLOAT_EQ(*((float*)result.data + i), *((float*)expected.data + i));
+}
