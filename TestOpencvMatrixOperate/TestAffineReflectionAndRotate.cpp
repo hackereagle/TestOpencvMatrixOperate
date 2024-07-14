@@ -1,11 +1,45 @@
 #include "pch.h"
 #include "MatrixOperateExtensions.hpp"
 
-//TEST(TestAffineMatrixProperties, TestReflectAndRotateDiffMultOrder)
+//TEST(TestAffineReflectionAndRotate, TestReflectAndRotateDiffMultOrder)
 //{
 //	// ARRANGE
 //	double reflectionWithX[9]{1, 0, 0, 0, -1, 0, 0, 0, 1};
 //}
+
+void DoVectorAssert(cv::Mat& img2Stage)
+{
+	double vecInImg[3][3] = {
+		{1, 0, 1},
+		{0, 1, 1},
+		{1, 1, 1},
+	};
+	double expectedResult[3][3] = {
+		{1, 0, 1},
+		{0, -1, 1},
+		{1, -1, 1},
+	};
+	cv::Mat vecsInImg, vecsInStage;
+	for (int i = 0; i < 3; i++) {
+		vecsInImg.push_back(cv::Mat(1, 3, CV_64FC1, vecInImg[i]));
+		vecsInStage.push_back(cv::Mat(1, 3, CV_64FC1, expectedResult[i]));
+	}
+	vecsInImg = vecsInImg.t();
+	vecsInStage = vecsInStage.t();
+	cv::Mat mat = img2Stage(cv::Rect(0, 0, img2Stage.cols, img2Stage.rows)).clone();
+	*((double*)mat.data + 2) = 0;
+	*((double*)mat.data + 5) = 0;
+
+	// ACT
+	cv::Mat result = mat * vecsInImg;
+	std::cout << "result: " << result << std::endl;
+
+	// ASSERT
+	int len = vecsInImg.rows * vecsInImg.cols;
+	for (int i = 0; i < len; i++) {
+		EXPECT_NEAR(*((double*)result.data + i), *((double*)vecsInStage.data + i), 0.001);
+	}
+}
 
 TEST(TestAffineReflectionAndRotate, TestSolveFromPoints)
 {
@@ -48,6 +82,7 @@ TEST(TestAffineReflectionAndRotate, TestSolveFromPoints)
 	EXPECT_NEAR(*((double*)img2Stg.data + 6),  0.0, 0.001);
 	EXPECT_NEAR(*((double*)img2Stg.data + 7),  0.0, 0.001);
 	EXPECT_NEAR(*((double*)img2Stg.data + 8),  1.0, 0.001);
+	DoVectorAssert(img2Stg);
 }
 
 TEST(TestAffineReflectionAndRotate, TestSolveFromPoints_WithTranslate)
@@ -91,4 +126,5 @@ TEST(TestAffineReflectionAndRotate, TestSolveFromPoints_WithTranslate)
 	EXPECT_NEAR(*((double*)img2Stg.data + 6),  0.0, 0.001);
 	EXPECT_NEAR(*((double*)img2Stg.data + 7),  0.0, 0.001);
 	EXPECT_NEAR(*((double*)img2Stg.data + 8),  1.0, 0.001);
+	DoVectorAssert(img2Stg);
 }
