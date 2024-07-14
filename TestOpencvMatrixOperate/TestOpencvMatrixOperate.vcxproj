@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TestAffineMatrixProperies.cpp" />
+    <ClCompile Include="TestAffineReflectionAndRotate.cpp" />
     <ClCompile Include="TestOpencvMat.cpp" />
     <ClCompile Include="TestOpencvMatrixOperate.cpp" />
     <ClCompile Include="pch.cpp">

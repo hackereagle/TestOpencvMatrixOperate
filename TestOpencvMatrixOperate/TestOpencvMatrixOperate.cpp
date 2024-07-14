@@ -309,3 +309,24 @@ TEST(TestOpencvMatrixOperate, TestGetElementsWithConditionFromMat)
 	for (int i = 0; i < 9; i++)
 		EXPECT_FLOAT_EQ(*((float*)result.data + i), *((float*)expected.data + i));
 }
+
+TEST(TestOpencvMatrixOperate, TestMatDiffPerElementMult)
+{
+	// ARRANGE
+	float arr1[6] = { 1, 2, 3, 4, 5, 6 };
+	float arr2[6] = { 2, 8, 7, 9, 2, 6 };
+	float arr3[6] = { 0.5, 0.25, 0.42857143, 0.44444445, 2.5, 1};
+	cv::Mat expected = cv::Mat(2, 3, CV_32FC1, arr3);
+
+	// ACT
+	cv::Mat mat1(2, 3, CV_32FC1, arr1);
+	cv::Mat mat2(2, 3, CV_32FC1, arr2);
+	cv::Mat result = mat1.mul((float)1 / mat2);
+	std::cout << "mat1.mul((float)1 / mat2) = \n" << result << std::endl;
+	cv::Mat result2 = mat1 / mat2;
+	std::cout << "mat1 / mat2 = \n" << result2 << std::endl;
+
+	// ASSERT
+	for (int i = 0; i < 6; i++)
+		EXPECT_FLOAT_EQ(*((float*)result.data + i), *((float*)expected.data + i));
+}
